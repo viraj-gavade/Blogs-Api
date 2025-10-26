@@ -39,8 +39,8 @@ class BlogModel(Base):
 
 
 class LikeModel(Base):
-    __tabelname__ = 'likes'
-    id =  Column(Integer,unique=True,autoincrement=True,index=True)
+    __tablename__ = 'likes'
+    id =  Column(Integer,unique=True,autoincrement=True,index=True,primary_key=True)
     Blog_id = Column(Integer,ForeignKey('blogs.id'),nullable=True)
     createdAt = Column(Date,default=func.current_timestamp())
     LikedBy = Column(Integer,ForeignKey('users.id'),nullable=True)
@@ -54,11 +54,11 @@ class LikeModel(Base):
 
 class CommentsModel(Base):
     __tablename__ = 'comments'
-    id =  Column(Integer,unique=True,autoincrement=True,index=True)
+    id =  Column(Integer,unique=True,autoincrement=True,index=True,primary_key=True)
     content = Column(String)
     Blog_id = Column(Integer,ForeignKey('blogs.id'),nullable=True)
     createdAt = Column(Date,default=func.current_timestamp())
-    CommentedBy =Column(Integer,ForeignKey('users.id'),nullable=True)
+    CommentedBy = Column(Integer,ForeignKey('users.id'),nullable=True)
 
     owner = relationship('UserModel',back_populates='MyComments')
 

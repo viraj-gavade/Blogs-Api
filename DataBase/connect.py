@@ -1,10 +1,8 @@
 from sqlalchemy.orm import create_session ,sessionmaker
 from sqlalchemy import create_engine 
 from sqlalchemy.ext.declarative import declarative_base
-
+from utils.imports import * 
 Base = declarative_base()
-
-DB_URL = DB_URL = 'postgresql://postgres:admin@localhost:5432/FastapiDB'
 
 engine = create_engine(DB_URL)
 
