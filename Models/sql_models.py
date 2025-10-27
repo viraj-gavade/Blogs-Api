@@ -12,9 +12,9 @@ class UserModel(Base):
     password = Column(String)
     email = Column(String,unique=True)
 
-    MyLikes = relationship('LikeModel',back_populates='LikedBy')
-    MyComments = relationship('CommentModel',back_populates='CommentedBy')
-    MyBlogs = relationship('BlogModel',back_populates='createdBy')
+    MyLikes = relationship('LikeModel',back_populates='owner')
+    MyComments = relationship('CommentsModel',back_populates='owner')
+    MyBlogs = relationship('BlogModel',back_populates='owner')
 
     class Config:
         orm_mode = True

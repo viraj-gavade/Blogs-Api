@@ -14,6 +14,9 @@ def ConnectDB():
     try :
         print('Connection established !')
         yield db
-    except Exception:
+    except Exception as e :
+        print(e)
+        raise e
+    finally:
         db.close_all()
         print('Connection closed !')

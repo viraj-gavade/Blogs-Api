@@ -1,16 +1,17 @@
 
 from fastapi.responses import JSONResponse
 
+from fastapi.responses import JSONResponse
 
 class CustomResponse:
     @staticmethod
-    def success(message: str, data: dict = None):
+    def success(message: str, status_code: int = 200, data: dict = None):
         response = {"status": "success", "message": message}
         if data:
             response["data"] = data
-        return JSONResponse(status_code=200, content=response)
+        return JSONResponse(content=response, status_code=status_code)
 
     @staticmethod
     def error(message: str, status_code: int = 400):
         response = {"status": "error", "message": message}
-        return JSONResponse(status_code=status_code, content=response)
+        return JSONResponse(content=response, status_code=status_code)
