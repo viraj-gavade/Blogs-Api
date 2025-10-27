@@ -10,7 +10,7 @@ class User(BaseModel):
 
     email : Annotated[EmailStr,Field(...,description='Email of the user',examples=['vrajgavade17@gmail.com'])]
 
-    password : Annotated[str,Field(...,description='Password  of the user',examples=['admin123'],pattern=r"^[A-Za-z0-9]{8,}$",max_length=24)]
+    password : Annotated[str,Field(...,description='Password  of the user',examples=['admin123'],pattern="^[A-Za-z0-9@#$%^&+=!]{8,}$",max_length=24)]
 
     username : Annotated[str,Field(...,description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16)]
 
@@ -32,7 +32,7 @@ class SignupUser(BaseModel):
 
     email : Annotated[EmailStr,Field(...,description='Email of the user',examples=['vrajgavade17@gmail.com'])]
 
-    password : Annotated[str,Field(...,description='Password  of the user',examples=['admin123'],pattern=r"^[A-Za-z0-9]{8,}$",max_length=24)]
+    password : Annotated[str,Field(...,description='Password  of the user',examples=['admin123'],pattern="^[A-Za-z0-9@#$%^&+=!]{8,}$",max_length=24)]
 
     username : Annotated[str,Field(...,description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16)]
 
@@ -42,7 +42,7 @@ class SignInUser(BaseModel):
     
     username : Annotated[str,Field(...,description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16)]
 
-    password : Annotated[str,Field(...,description='Password  of the user',examples=['admin123'],pattern=r"^[A-Za-z0-9]{8,}$",max_length=24)]
+    password : Annotated[str,Field(...,description='Password  of the user',examples=['admin123'],pattern="^[A-Za-z0-9@#$%^&+=!]{8,}$",max_length=24)]
     model_config = {"from_attributes": True}
 
 
@@ -54,7 +54,24 @@ class UpdateUser(BaseModel):
 
     username : Annotated[Optional[str],Field(description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16,default=None)]
 
+
+class UpdateUser(BaseModel):
+
+    fullName : Annotated[Optional[str],Field(description='Full Name of the user',examples=['Viraj Gavade'],default=None)]
+
+    email : Annotated[Optional[EmailStr],Field(description='Email of the user',examples=['vrajgavade17@gmail.com'],default=None)]
+
+    username : Annotated[Optional[str],Field(description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16,default=None)]
+
     model_config = {"from_attributes": True}
+
+class ChangePassword(BaseModel) :
+    current_pass : Annotated[str,Field(...,description='new Password  of the user',examples=['admin123'],pattern="^[A-Za-z0-9@#$%^&+=!]{8,}$",max_length=24)]
+
+    new_password : Annotated[str,Field(...,description='new Password  of the user',examples=['admin123'],pattern="^[A-Za-z0-9@#$%^&+=!]{8,}$",max_length=24)]
+    
+    model_config = {"from_attributes": True}
+
 
 class UserPublic(BaseModel):
     id: int

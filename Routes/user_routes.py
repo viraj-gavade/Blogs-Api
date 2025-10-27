@@ -4,7 +4,7 @@ from Midddlewares.auth_middleware import verifyJWT
 from fastapi import Depends
 from DataBase.connect import ConnectDB
 from sqlalchemy.orm import Session
-from Schemas.user_schemas import UserPublic
+from Schemas.user_schemas import UserPublic , ChangePassword
 
 UserRouter = APIRouter()
 
@@ -19,6 +19,9 @@ def update(user : UpdateUser ,db : Session = Depends(ConnectDB),current_user = D
     return update_user(user , db , current_user)
 
 
+@UserRouter.put('/me/changepass')
+def changePassword(passwords : ChangePassword , db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
+    return change_password(passwords , db , current_user)
 
 @UserRouter.get('/me/comments')
 def comments(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
@@ -33,3 +36,5 @@ def comments(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)
 @UserRouter.get('/me/blogs')
 def comments(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     return get_my_blogs( db , current_user)
+
+

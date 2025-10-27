@@ -3,8 +3,9 @@ from fastapi import Depends
 from DataBase.connect import ConnectDB
 from sqlalchemy.orm import Session
 from Models.sql_models import UserModel
-from Schemas.user_schemas import UserPublic,UpdateUser
+from Schemas.user_schemas import UserPublic,UpdateUser,ChangePassword
 from Models.sql_models import CommentsModel , LikeModel , BlogModel
+from Auth.auth import verifyPassword ,hash_password
 
 def get_user(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user:
@@ -76,3 +77,27 @@ def get_my_blogs(db : Session = Depends(ConnectDB),current_user = Depends(verify
     else:
     
         return blogs
+    
+
+def change_password(
+    passwords: ChangePassword,
+    db: Session = Depends(ConnectDB),
+    current_user=Depends(verifyJWT)
+):
+    if not current_user:
+        return 'Invalid access Token'
+
+    username = current_user["username"]
+    user = db.query(UserModel).filter(UserModel.username == username).first()
+
+    # Verify current password
+    isPasscorrect = verifyPassword(passwords.current_pass, user.password)
+    if not isPasscorrect:
+        return 'Incorrect current password provided!'
+
+    # Hash and update new password
+    user.password = hash_password(passwords.new_password)
+    db.commit()
+    db.refresh(user)
+
+    return 'Password updated successfully!'
