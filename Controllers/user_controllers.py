@@ -6,24 +6,42 @@ from Models.sql_models import UserModel
 from Schemas.user_schemas import UserPublic,UpdateUser,ChangePassword
 from Models.sql_models import CommentsModel , LikeModel , BlogModel
 from Auth.auth import verifyPassword ,hash_password
+from utils.response import CustomResponse
+from fastapi import status
 
 def get_user(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user:
-        return 'Invalid Acess Token'
+        return CustomResponse.error(
+            message='Login To create a Blog ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     username = current_user["username"]
     user = db.query(UserModel).filter(UserModel.username == username ).first()
     if not user :
-        return 'User not found'
-    return  UserPublic.model_validate(user)
+        return CustomResponse.error(
+            message='User Not Found!',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    return CustomResponse.success(
+        message='User Profile fetched successfully!',
+        data=UserPublic.model_validate(user)
+    )
+
 
 
 def update_user(user : UpdateUser ,db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT) ):
     if not current_user :
-        return 'Invalid access Token'
+      return CustomResponse.error(
+            message='Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     username = current_user["username"]
     db_user = db.query(UserModel).filter(UserModel.username == username ).first()
     if not db_user :
-        return 'User not found'
+        return CustomResponse.error(
+            message='User Not Found!',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
     
     update_data = user.model_dump(exclude_unset=True)
 
@@ -31,12 +49,19 @@ def update_user(user : UpdateUser ,db : Session = Depends(ConnectDB),current_use
         setattr(db_user,key,value)
     db.commit()
     db.refresh(db_user)
-    return 'User updated successfully!'
+    return CustomResponse.success(
+        message='User Profile Updated Successfully!',
+        status_code=status.HTTP_200_OK,
+        data= UserPublic.model_validate(db_user)
+    )
 
 
 def get_my_comments(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user :
-        return 'Invalid access Token'
+        return CustomResponse.error(
+            message='Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     userId = current_user["id"]
     blogs = (
     db.query(BlogModel)
@@ -45,14 +70,22 @@ def get_my_comments(db : Session = Depends(ConnectDB),current_user = Depends(ver
     .all()
 )
     if not blogs:
-     return   'User has not made any comments on any blogs'
+     return  CustomResponse.error(
+         message='"No comments found for this user.'
+     )
     
-    return blogs
+    return CustomResponse.success(
+        message= "User's commented blogs fetched successfully!",
+        data=blogs
+    )
 
 
 def get_my_likes(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user :
-        return 'Invalid access Token'
+         return CustomResponse.error(
+            message='Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     userId = current_user["id"]
     blogs = (
     db.query(BlogModel)
@@ -61,22 +94,32 @@ def get_my_likes(db : Session = Depends(ConnectDB),current_user = Depends(verify
     .all()
 )
     if not blogs:
-     return    'User has not liked any blogs'
+     return  CustomResponse.error(
+         message='"No Likes found for this user.'
+     )
     
-    return blogs
+    return CustomResponse.success(
+        message= "User's Liked  blogs fetched successfully!",
+        data=blogs
+    )
 
 def get_my_blogs(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user :
-        return 'Invalid access Token'
+        return CustomResponse.error(
+            message='Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     userId = current_user["id"]
     blogs = (db.query(BlogModel).filter(BlogModel.createdBy == userId).all())
-    print(type(blogs))
-    print(len(blogs))
-    if len(blogs) == 0 :
-       return  'User  has not created any blogs'
+    if not blogs :
+       return  CustomResponse.error(
+         message='"No Blogs  found for this user.'
+     )
     else:
-    
-        return blogs
+        return CustomResponse.success(
+        message= "User's   blogs fetched successfully!",
+        data=blogs
+    )
     
 
 def change_password(
@@ -85,19 +128,25 @@ def change_password(
     current_user=Depends(verifyJWT)
 ):
     if not current_user:
-        return 'Invalid access Token'
+        return CustomResponse.error(
+            message='Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
 
     username = current_user["username"]
     user = db.query(UserModel).filter(UserModel.username == username).first()
 
-    # Verify current password
     isPasscorrect = verifyPassword(passwords.current_pass, user.password)
     if not isPasscorrect:
-        return 'Incorrect current password provided!'
-
-    # Hash and update new password
+        return  CustomResponse.error(
+            message='Incorrect Cureent Password ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     user.password = hash_password(passwords.new_password)
     db.commit()
     db.refresh(user)
 
-    return 'Password updated successfully!'
+    return CustomResponse.success(
+        message= "User's   password updated successfully!",
+        data= UserPublic.model_validate(user)
+    )
