@@ -12,7 +12,7 @@ from fastapi import status
 def get_user(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user:
         return CustomResponse.error(
-            message='Login To create a Blog ! ',
+            message=' Not Authenticated ! ',
             status_code= status.HTTP_401_UNAUTHORIZED
         )
     username = current_user["username"]

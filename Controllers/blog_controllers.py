@@ -1,12 +1,12 @@
 
-from fastapi.requests import Request
 from fastapi import Depends
 from DataBase.connect import ConnectDB
 from sqlalchemy.orm import Session
 from Schemas.blog_schemas import Blog , UpdateBlog
 from Midddlewares.auth_middleware import verifyJWT
 from Models.sql_models import BlogModel
-
+from utils.response import CustomResponse
+from fastapi import status
 
 
 def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = Depends(verifyJWT) ):
@@ -14,7 +14,10 @@ def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = D
     userId = current_user['id']
 
     if not userId:
-        return 'Login to create a Blog'
+        return CustomResponse.error(
+            message=' Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     else:
         new_blog = BlogModel(
             title = blog.title,
@@ -25,14 +28,22 @@ def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = D
         db.add(new_blog)
         db.commit()
         db.refresh(new_blog)
-        return {'message:':"Blog Created Successfully",'data': new_blog}
+        return CustomResponse.success(
+        message='Blog Created successfully!',
+        data=new_blog
+    )
 
 
 def getAllBlogs(db : Session = Depends(ConnectDB)):
     blogs = db.query(BlogModel).all()
     if not blogs:
-        return 'NO Blogs found!'
-    return blogs
+        return  CustomResponse.error(
+        message='No Blogs Found!',
+    )
+    return  CustomResponse.success(
+        message='Blogs fetched successfully!',
+        data=blogs
+    )
 
 
 
@@ -41,32 +52,49 @@ def getSingleBlogById(id : int , db : Session = Depends(ConnectDB)):
 
     blog = db.query(BlogModel).filter(BlogModel.id == id).first()
     if not blog:
-        return f'No blog with the id {id}'
-    return blog
+          return  CustomResponse.error(
+        message='Blog Not Found !',
+    )
+    return  CustomResponse.success(
+        message='Blog fetched successfully!',
+        data=blog
+    )
 
 
 def deleteBlogById(id : int , db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user:
-        return 'Not Authenticated'
+        return CustomResponse.error(
+            message=' Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     else:
         current_blog = db.query(BlogModel).filter(BlogModel.id == id).first()
-        print('Cureent Blog : ' , current_blog)
         if not current_blog:
-            return f'No blog found with the id {id}'
+               return  CustomResponse.error(
+                message='Blog Not Found !',
+                )
         else:
             if(current_blog.createdBy == current_user['id']):
                 db.delete(current_blog)
                 db.commit()
-                return 'Blog Deleted sucessfully!'
+                return  CustomResponse.success(
+                message='Blog deleted successfully!')
+
 
 def updateBlogById(id : int , update_blog : UpdateBlog,   db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user:
-        return 'Not Authenticated'
+        return CustomResponse.error(
+            message=' Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     else:
         current_blog = db.query(BlogModel).filter(BlogModel.id == id).first()
         print('Cureent Blog : ' , current_blog)
         if not current_blog:
-            return f'No blog found with the id {id}'
+             return CustomResponse.error(
+            message=' Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
         else:
             if(current_blog.createdBy == current_user['id']):
                 update_data = update_blog.model_dump(exclude_unset=True)
@@ -75,5 +103,12 @@ def updateBlogById(id : int , update_blog : UpdateBlog,   db : Session = Depends
                     setattr(current_blog,key,value)
                 db.commit()
                 db.refresh(current_blog)
-                return current_blog
+                return  CustomResponse.success(
+                message='Blog updated successfully!',
+                data=current_blog)
+            else:
+                return CustomResponse.error(
+            message=' Not Authenticated ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
     
