@@ -15,9 +15,9 @@ from fastapi.responses import Response
 def login_user(login_user : SignInUser ,response : Response, db : Session = Depends(ConnectDB) ,  ):
     db_user = db.query(UserModel).filter(UserModel.username == login_user.username).first()
     if not db_user:
-        return CustomResponse.error(
-            message='User not found!',
-            status_code=status.HTTP_404_NOT_FOUND
+         return CustomResponse.error(
+            message='Invalid Username or password !',
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
     isPasswordCorrect : bool = verifyPassword(login_user.password,db_user.password)
     if isPasswordCorrect == False:

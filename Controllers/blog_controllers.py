@@ -7,6 +7,8 @@ from Midddlewares.auth_middleware import verifyJWT
 from Models.sql_models import BlogModel
 from utils.response import CustomResponse
 from fastapi import status
+from Models.sql_models import LikeModel , CommentsModel
+from fastapi.encoders import jsonable_encoder
 
 
 def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = Depends(verifyJWT) ):
@@ -30,7 +32,7 @@ def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = D
         db.refresh(new_blog)
         return CustomResponse.success(
         message='Blog Created successfully!',
-        data=new_blog
+        data= jsonable_encoder(new_blog)
     )
 
 
@@ -42,7 +44,7 @@ def getAllBlogs(db : Session = Depends(ConnectDB)):
     )
     return  CustomResponse.success(
         message='Blogs fetched successfully!',
-        data=blogs
+        data=jsonable_encoder(blogs)
     )
 
 
@@ -51,13 +53,20 @@ def getAllBlogs(db : Session = Depends(ConnectDB)):
 def getSingleBlogById(id : int , db : Session = Depends(ConnectDB)):
 
     blog = db.query(BlogModel).filter(BlogModel.id == id).first()
+    blog_comments = db.query(CommentsModel).filter(CommentsModel.Blog_id == id).all()
+    blog_likes = db.query(LikeModel).filter(LikeModel.Blog_id == id).all()
     if not blog:
           return  CustomResponse.error(
         message='Blog Not Found !',
     )
+    data = {
+        'Blog ':  blog,
+        'Comments ' : blog_comments,
+        'Likes ' : blog_likes
+    }
     return  CustomResponse.success(
         message='Blog fetched successfully!',
-        data=blog
+        data=jsonable_encoder(data)
     )
 
 
@@ -79,6 +88,12 @@ def deleteBlogById(id : int , db : Session = Depends(ConnectDB),current_user = D
                 db.commit()
                 return  CustomResponse.success(
                 message='Blog deleted successfully!')
+            else:
+                return CustomResponse.error(
+            message=' Not Authenticated to delete the Blog ! ',
+            status_code= status.HTTP_401_UNAUTHORIZED
+        )
+
 
 
 def updateBlogById(id : int , update_blog : UpdateBlog,   db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
@@ -105,10 +120,10 @@ def updateBlogById(id : int , update_blog : UpdateBlog,   db : Session = Depends
                 db.refresh(current_blog)
                 return  CustomResponse.success(
                 message='Blog updated successfully!',
-                data=current_blog)
+                data=jsonable_encoder(current_blog))
             else:
                 return CustomResponse.error(
-            message=' Not Authenticated ! ',
+            message=' Not Authenticated to Update the Blog ! ',
             status_code= status.HTTP_401_UNAUTHORIZED
         )
     

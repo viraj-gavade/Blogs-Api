@@ -8,6 +8,7 @@ from Models.sql_models import CommentsModel , LikeModel , BlogModel
 from Auth.auth import verifyPassword ,hash_password
 from utils.response import CustomResponse
 from fastapi import status
+from fastapi.encoders import jsonable_encoder
 
 def get_user(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
     if not current_user:
@@ -24,7 +25,7 @@ def get_user(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)
         )
     return CustomResponse.success(
         message='User Profile fetched successfully!',
-        data=UserPublic.model_validate(user)
+        data=jsonable_encoder(UserPublic.model_validate(user))
     )
 
 
@@ -52,7 +53,7 @@ def update_user(user : UpdateUser ,db : Session = Depends(ConnectDB),current_use
     return CustomResponse.success(
         message='User Profile Updated Successfully!',
         status_code=status.HTTP_200_OK,
-        data= UserPublic.model_validate(db_user)
+        data= jsonable_encoder(UserPublic.model_validate(db_user))
     )
 
 
@@ -76,7 +77,7 @@ def get_my_comments(db : Session = Depends(ConnectDB),current_user = Depends(ver
     
     return CustomResponse.success(
         message= "User's commented blogs fetched successfully!",
-        data=blogs
+        data= jsonable_encoder(blogs)
     )
 
 
@@ -100,7 +101,7 @@ def get_my_likes(db : Session = Depends(ConnectDB),current_user = Depends(verify
     
     return CustomResponse.success(
         message= "User's Liked  blogs fetched successfully!",
-        data=blogs
+        data=jsonable_encoder(blogs)
     )
 
 def get_my_blogs(db : Session = Depends(ConnectDB),current_user = Depends(verifyJWT)):
@@ -118,7 +119,7 @@ def get_my_blogs(db : Session = Depends(ConnectDB),current_user = Depends(verify
     else:
         return CustomResponse.success(
         message= "User's   blogs fetched successfully!",
-        data=blogs
+        data=jsonable_encoder(blogs)
     )
     
 
@@ -148,5 +149,5 @@ def change_password(
 
     return CustomResponse.success(
         message= "User's   password updated successfully!",
-        data= UserPublic.model_validate(user)
+        data= jsonable_encoder(UserPublic.model_validate(user))
     )
