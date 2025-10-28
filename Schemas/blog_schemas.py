@@ -4,7 +4,7 @@ from datetime import date
 
 
 class Blog(BaseModel):
-    id : Annotated[int,Field(...,description='Unique id of the blog',examples=[1,2,3])]
+    id : Annotated[Optional[int],Field(description='Unique id of the blog',examples=[1,2,3],default=None)]
 
     title : Annotated[str,Field(...,description='Title of the blogs',examples=['Machine Learning'])]
 
@@ -15,11 +15,11 @@ class Blog(BaseModel):
         Field(description="Date of the Blog", examples=["2025-10-25"], default_factory=date.today)
     ]
 
-    createBy : Annotated[int,Field(...,description='ID of the user who ceated the blog',default=0,examples=[1])]
+    createdBy : Annotated[int,Field(description='ID of the user who ceated the blog',default=None)]
 
-    LikedBy : Annotated[Optional[List][int],Field(description='Id of the  users liked blogs')]
+    LikedBy : Annotated[Optional[List[int]],Field(description='Id of the  users liked blogs',default=None)]
 
-    CommentedBy : Annotated[Optional[List][int],Field(description='Id of the  users commented blogs')]
+    CommentedBy : Annotated[Optional[List[int]],Field(description='Id of the  users commented blogs',default=None)]
 
 
 

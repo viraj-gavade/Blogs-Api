@@ -5,6 +5,7 @@ from Auth.auth import decodeToken
 from jose import jwt, JWTError
 
 def verifyJWT(request : Request):
+    print(request.cookies)
     accessToken = request.cookies.get('accessToken')
     if not accessToken:
         raise HTTPException(

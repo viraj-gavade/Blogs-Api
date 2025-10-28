@@ -3,6 +3,7 @@ from utils.response import CustomResponse
 from DataBase.connect import engine
 from Routes.auth_routes import AuthRouter
 from Routes.user_routes import UserRouter
+from Routes.blog_routes import BlogRouter
 
 import Models.sql_models
 
@@ -13,6 +14,8 @@ app = FastAPI()
 
 app.include_router(AuthRouter,prefix='/auth',tags=['auth'])
 app.include_router(UserRouter,prefix='/user',tags=['user'])
+app.include_router(BlogRouter,prefix='/blog',tags=['blog'])
+
 
 
 @app.get('/')
