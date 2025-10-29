@@ -73,7 +73,8 @@ def get_my_comments(db : Session = Depends(ConnectDB),current_user = Depends(ver
         )
     if not blogs:
      return  CustomResponse.error(
-         message='"No comments found for this user.'
+         message='"No comments found for this user.',
+         status_code=status.HTTP_404_NOT_FOUND
      )
     
     return CustomResponse.success(
@@ -98,7 +99,8 @@ def get_my_likes(db : Session = Depends(ConnectDB),current_user = Depends(verify
 
     if not blogs:
      return  CustomResponse.error(
-         message='"No Likes found for this user.'
+         message='"No Likes found for this user.',
+         status_code=status.HTTP_404_NOT_FOUND
      )
     
     return CustomResponse.success(
@@ -116,7 +118,8 @@ def get_my_blogs(db : Session = Depends(ConnectDB),current_user = Depends(verify
     blogs = (db.query(BlogModel).filter(BlogModel.createdBy == userId).all())
     if not blogs :
        return  CustomResponse.error(
-         message='"No Blogs  found for this user.'
+         message='"No Blogs  found for this user.',
+         status_code=status.HTTP_404_NOT_FOUND
      )
     else:
         return CustomResponse.success(
@@ -142,7 +145,7 @@ def change_password(
     isPasscorrect = verifyPassword(passwords.current_pass, user.password)
     if not isPasscorrect:
         return  CustomResponse.error(
-            message='Incorrect Cureent Password ! ',
+            message='Incorrect Current Password ! ',
             status_code= status.HTTP_401_UNAUTHORIZED
         )
     user.password = hash_password(passwords.new_password)

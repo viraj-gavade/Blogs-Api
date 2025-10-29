@@ -11,6 +11,7 @@ from Models.sql_models import LikeModel , CommentsModel
 from fastapi.encoders import jsonable_encoder
 
 
+
 def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = Depends(verifyJWT) ):
     print('Current User :  ' , current_user)
     userId = current_user['id']
@@ -32,7 +33,8 @@ def createBlog(blog : Blog , db : Session = Depends(ConnectDB), current_user = D
         db.refresh(new_blog)
         return CustomResponse.success(
         message='Blog Created successfully!',
-        data= jsonable_encoder(new_blog)
+        data= jsonable_encoder(new_blog),
+        status_code=status.HTTP_201_CREATED
     )
 
 
@@ -41,6 +43,7 @@ def getAllBlogs(db : Session = Depends(ConnectDB)):
     if not blogs:
         return  CustomResponse.error(
         message='No Blogs Found!',
+        status_code=status.HTTP_404_NOT_FOUND
     )
     return  CustomResponse.success(
         message='Blogs fetched successfully!',
@@ -56,9 +59,10 @@ def getSingleBlogById(id : int , db : Session = Depends(ConnectDB)):
     blog_comments = db.query(CommentsModel).filter(CommentsModel.Blog_id == id).all()
     blog_likes = db.query(LikeModel).filter(LikeModel.Blog_id == id).all()
     if not blog:
-          return  CustomResponse.error(
-        message='Blog Not Found !',
-    )
+        return CustomResponse.error(
+            message=' Blog Not Found ! ',
+            status_code= status.HTTP_404_NOT_FOUND
+        )
     data = {
         'Blog ':  blog,
         'Comments ' : blog_comments,
@@ -81,6 +85,7 @@ def deleteBlogById(id : int , db : Session = Depends(ConnectDB),current_user = D
         if not current_blog:
                return  CustomResponse.error(
                 message='Blog Not Found !',
+                status_code=status.HTTP_404_NOT_FOUND
                 )
         else:
             if(current_blog.createdBy == current_user['id']):
@@ -90,7 +95,7 @@ def deleteBlogById(id : int , db : Session = Depends(ConnectDB),current_user = D
                 message='Blog deleted successfully!')
             else:
                 return CustomResponse.error(
-            message=' Not Authenticated to delete the Blog ! ',
+            message=' Not Authenticated ! ',
             status_code= status.HTTP_401_UNAUTHORIZED
         )
 
@@ -104,11 +109,10 @@ def updateBlogById(id : int , update_blog : UpdateBlog,   db : Session = Depends
         )
     else:
         current_blog = db.query(BlogModel).filter(BlogModel.id == id).first()
-        print('Cureent Blog : ' , current_blog)
         if not current_blog:
              return CustomResponse.error(
-            message=' Not Authenticated ! ',
-            status_code= status.HTTP_401_UNAUTHORIZED
+            message=' Blog Not Found ! ',
+            status_code= status.HTTP_404_NOT_FOUND
         )
         else:
             if(current_blog.createdBy == current_user['id']):
