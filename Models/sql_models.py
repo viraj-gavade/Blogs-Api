@@ -1,5 +1,5 @@
 from DataBase.connect import Base
-from sqlalchemy import Column , Integer , Text , String ,func ,Date,ForeignKey
+from sqlalchemy import Column , Integer , Text , String ,func ,Date,ForeignKey,Boolean
 from sqlalchemy.orm import relationship
 
 

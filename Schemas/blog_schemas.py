@@ -15,6 +15,11 @@ class Blog(BaseModel):
         Field(description="Date of the Blog", examples=["2025-10-25"], default_factory=date.today)
     ]
 
+    isLiked : Annotated[
+        Optional[bool],
+        Field(description='If the blog is liked by the user or not',default=False)
+    ]
+
     createdBy : Annotated[int,Field(description='ID of the user who ceated the blog',default=None)]
 
     LikedBy : Annotated[Optional[List[int]],Field(description='Id of the  users liked blogs',default=None)]

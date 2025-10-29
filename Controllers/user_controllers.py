@@ -65,11 +65,12 @@ def get_my_comments(db : Session = Depends(ConnectDB),current_user = Depends(ver
         )
     userId = current_user["id"]
     blogs = (
-    db.query(BlogModel)
-    .join(CommentsModel, BlogModel.id == CommentsModel.Blog_id)
-    .filter(CommentsModel.CommentedBy == userId)
-    .all()
-)
+        db.query(BlogModel)
+        .join(CommentsModel, BlogModel.id == CommentsModel.Blog_id)
+        .filter(CommentsModel.CommentedBy == userId)
+        .distinct()
+        .all()
+        )
     if not blogs:
      return  CustomResponse.error(
          message='"No comments found for this user.'
@@ -89,11 +90,12 @@ def get_my_likes(db : Session = Depends(ConnectDB),current_user = Depends(verify
         )
     userId = current_user["id"]
     blogs = (
-    db.query(BlogModel)
-    .join(LikeModel, LikeModel.id == LikeModel.Blog_id)
-    .filter(LikeModel.LikedBy == userId)
-    .all()
-)
+  db.query(BlogModel)
+  .join(LikeModel, BlogModel.id == LikeModel.Blog_id)
+  .filter(LikeModel.LikedBy == userId)
+  .all()
+    )
+
     if not blogs:
      return  CustomResponse.error(
          message='"No Likes found for this user.'
