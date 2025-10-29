@@ -1,0 +1,343 @@
+# 🔥 Blogs API
+
+A minimal and opinionated blogging API built with FastAPI. It supports user registration, authentication (cookie-based JWT), creating/updating/deleting blogs, comments, and likes. The API returns consistent JSON responses via a custom response helper.
+
+**📚 [Complete API Documentation (Postman)](https://documenter.getpostman.com/view/34879207/2sB3WmV45e)** ⭐
+
+---
+
+## ⚡ Overview
+
+This project is a simple Blogs API implemented using FastAPI. It provides endpoints for:
+- User signup, login (cookie-based JWT), and logout
+- CRUD for blog posts (create, read, update, delete)
+- Adding, updating, and deleting comments on blogs
+- Liking/unliking blogs (toggle)
+- User profile operations (view, update, change password) and retrieving user's blogs/comments/likes
+
+The API is designed for learning and small projects. It uses SQLAlchemy for ORM models and Pydantic (via schemas) for validation.
+
+---
+
+## 🚀 Tech Stack
+
+- **FastAPI** — Modern, fast web framework for building APIs
+- **Uvicorn** — Lightning-fast ASGI server
+- **SQLAlchemy** — Powerful ORM for database operations
+- **Pydantic** — Data validation and serialization
+- **python-dotenv** — Environment variable management
+- **passlib[bcrypt]** — Secure password hashing
+- **python-jose** — JWT token handling
+
+---
+
+## ✨ Features
+
+- ✅ User registration/login using hashed passwords (bcrypt)
+- ✅ JWT-based authentication (stored in `accessToken` cookie)
+- ✅ CRUD operations for blogs with ownership checks
+- ✅ Comment creation, update, delete with ownership validation
+- ✅ Toggle-like functionality for blogs
+- ✅ Consistent JSON response wrapper via `utils/response.py`
+- ✅ Input/output validation using Pydantic schemas
+- ✅ Automatic API documentation (Swagger UI & ReDoc)
+- ✅ Database-agnostic design (works with SQLite, PostgreSQL, MySQL, etc.)
+
+---
+
+## 🧭 Quick Start
+
+> These instructions assume you're on Windows (PowerShell). Adjust activation commands for other shells or platforms.
+
+### 1. Clone the repository
+
+```powershell
+git clone <your-repo-url>
+cd "Blogs Api"
+```
+
+### 2. Create and activate virtual environment
+
+```powershell
+python -m venv .venv
+
+# PowerShell activation
+.\.venv\Scripts\Activate.ps1
+
+# On macOS/Linux, use:
+# source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```powershell
+pip install fastapi uvicorn sqlalchemy python-dotenv passlib[bcrypt] python-jose
+```
+
+*Tip: For production, create a `requirements.txt` file with pinned versions.*
+
+### 4. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+DB_URL=sqlite:///./test.db
+SECRETE_KEY=your_secret_key_here_generate_a_strong_random_key
+ALGORITHM=HS256
+```
+
+**Notes:**
+- `DB_URL` — Database connection string (SQLite example shown, supports PostgreSQL, MySQL, etc.)
+- `SECRETE_KEY` — Generate a strong random key for JWT signing
+- `ALGORITHM` — JWT algorithm (HS256 recommended)
+
+### 5. Run the server
+
+```powershell
+uvicorn main:app --reload --port 8000
+```
+
+🎉 **Success!** Your API is now running at:
+- **Swagger UI:** http://127.0.0.1:8000/docs
+- **ReDoc:** http://127.0.0.1:8000/redoc
+
+---
+
+## 🧩 API Endpoints
+
+All responses use a `CustomResponse` wrapper:
+
+**Success Response:**
+```json
+{
+  "status": "success",
+  "message": "...",
+  "data": { ... }
+}
+```
+
+**Error Response:**
+```json
+{
+  "status": "error",
+  "message": "..."
+}
+```
+
+### 🔑 Authentication (`/auth`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/auth/register` | Register a new user | ❌ |
+| POST | `/auth/login` | Login and receive JWT cookie | ❌ |
+| GET | `/auth/logout` | Logout and clear cookie | ✅ |
+
+### 👤 User (`/user`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/user/me` | Get current user profile | ✅ |
+| PUT | `/user/me/update` | Update profile information | ✅ |
+| PUT | `/user/me/changepass` | Change password | ✅ |
+| GET | `/user/me/comments` | Get blogs user commented on | ✅ |
+| GET | `/user/me/likes` | Get blogs user liked | ✅ |
+| GET | `/user/me/blogs` | Get user's blog posts | ✅ |
+
+### 📝 Blog (`/blog`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/blog/` | Get all blogs | ❌ |
+| POST | `/blog/` | Create a new blog | ✅ |
+| GET | `/blog/{id}` | Get blog with comments & likes | ❌ |
+| PUT | `/blog/{id}` | Update blog (owner only) | ✅ |
+| DELETE | `/blog/{id}` | Delete blog (owner only) | ✅ |
+
+### 💬 Comment (`/comment`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/comment/{blog_id}` | Add comment to blog | ✅ |
+| PUT | `/comment/{comment_id}` | Update comment (owner only) | ✅ |
+| DELETE | `/comment/{comment_id}` | Delete comment (owner only) | ✅ |
+
+### 👍 Like (`/like`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/like/toggle/{id}` | Toggle like on blog | ✅ |
+
+---
+
+## 💡 Example Usage
+
+### Register a User
+
+**Request:** `POST /auth/register`
+
+```json
+{
+  "fullName": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "Password123!",
+  "username": "jane_doe"
+}
+```
+
+**Response:** `201 Created`
+
+```json
+{
+  "status": "success",
+  "message": "User Registered Successfully!",
+  "data": {
+    "username": "jane_doe",
+    "email": "jane@example.com",
+    "Full Name": "Jane Doe"
+  }
+}
+```
+
+### Login
+
+**Request:** `POST /auth/login`
+
+```json
+{
+  "username": "jane_doe",
+  "password": "Password123!"
+}
+```
+
+**Response:** `200 OK` (sets `accessToken` cookie)
+
+```json
+{
+  "status": "success",
+  "message": "Login Successful!",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+### Create a Blog Post
+
+**Request:** `POST /blog/` (with auth cookie)
+
+```json
+{
+  "title": "My First Blog Post",
+  "content": "This is the content of my first blog post..."
+}
+```
+
+**Response:** `201 Created`
+
+```json
+{
+  "status": "success",
+  "message": "Blog Created Successfully!",
+  "data": {
+    "id": 1,
+    "title": "My First Blog Post",
+    "content": "This is the content of my first blog post...",
+    "created_at": "2025-10-29T10:30:00",
+    "updated_at": "2025-10-29T10:30:00"
+  }
+}
+```
+
+---
+
+## 📁 Project Structure
+
+```
+📦 Blogs Api/
+├─ 📄 main.py                    # FastAPI app & router registration
+├─ 📁 Auth/                      # Authentication helpers
+│  └─ auth.py                    # Password hashing & JWT functions
+├─ 📁 Controllers/               # Business logic layer
+│  ├─ auth_controllers.py
+│  ├─ blog_controllers.py
+│  ├─ comment_controllers.py
+│  ├─ like_controllers.py
+│  └─ user_controllers.py
+├─ 📁 DataBase/                  # Database configuration
+│  └─ connect.py                 # DB connection & session factory
+├─ 📁 Midddlewares/              # Request middlewares
+│  └─ auth_middleware.py         # JWT verification middleware
+├─ 📁 Models/                    # Database models
+│  └─ sql_models.py              # SQLAlchemy ORM models
+├─ 📁 Routes/                    # API route definitions
+│  ├─ auth_routes.py
+│  ├─ blog_routes.py
+│  ├─ comment_routes.py
+│  ├─ like_routes.py
+│  └─ user_routes.py
+├─ 📁 Schemas/                   # Request/response schemas
+│  ├─ blog_schemas.py
+│  ├─ comment_schemas.py
+│  ├─ like_schemas.py
+│  └─ user_schemas.py
+└─ 📁 utils/                     # Utility functions
+   ├─ imports.py                 # Environment variables loader
+   └─ response.py                # Custom response wrapper
+```
+
+---
+
+## 🔒 Security Considerations
+
+- Passwords are hashed using bcrypt before storage
+- JWT tokens are stored in HTTP-only cookies
+- All authenticated endpoints verify token validity
+- Ownership checks prevent unauthorized modifications
+- Input validation via Pydantic schemas
+
+---
+
+## 🚀 Deployment
+
+For production deployment:
+
+1. Use a production-grade database (PostgreSQL recommended)
+2. Set strong `SECRETE_KEY` environment variable
+3. Use a production ASGI server like Gunicorn with Uvicorn workers
+4. Enable HTTPS/TLS
+5. Configure CORS appropriately
+6. Set up proper logging and monitoring
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Contact
+
+**Developer:** Viraj Gavade
+
+- **📚 API Documentation: [Postman Collection](https://documenter.getpostman.com/view/34879207/2sB3WmV45e)** ⭐
+- 📧 Email: vrajgavade17@gmail.com
+- 💼 LinkedIn: [linkedin.com/in/viraj-gavade-dev](https://www.linkedin.com/in/viraj-gavade-dev/)
+- 🐙 GitHub: [viraj-gavade](https://github.com/viraj-gavade)
+- 🌐 Portfolio: [viraj-forge](https://viraj-forge.vercel.app/)
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+
+---
+
+## ⭐ Show Your Support
+
+If this project helped you, please give it a ⭐️!
+
+---
+
+**Built withFastAPI** 🚀

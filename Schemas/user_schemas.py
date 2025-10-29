@@ -52,7 +52,7 @@ class UpdateUser(BaseModel):
 
     email : Annotated[Optional[EmailStr],Field(description='Email of the user',examples=['vrajgavade17@gmail.com'],default=None)]
 
-    username : Annotated[Optional[str],Field(description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16,default=None)]
+    username : Annotated[Optional[str],Field(description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_.]+$',max_length=16,default=None)]
 
 
 class UpdateUser(BaseModel):
@@ -61,7 +61,7 @@ class UpdateUser(BaseModel):
 
     email : Annotated[Optional[EmailStr],Field(description='Email of the user',examples=['vrajgavade17@gmail.com'],default=None)]
 
-    username : Annotated[Optional[str],Field(description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_]+$',max_length=16,default=None)]
+    username : Annotated[Optional[str],Field(description='username  of the user',examples=['viraj_gavade'],pattern=r'^[a-zA-Z0-9_.]+$',max_length=16,default=None)]
 
     model_config = {"from_attributes": True}
 
