@@ -1,0 +1,15 @@
+name: CI
+
+on : 
+    push : 
+        branch : ['master']
+
+workflow_dispatch: 
+
+
+jobs : 
+    build :
+        runs-on : ubuntu-latest
+        steps:
+            - name : Hello-run
+              run : echo Hello , World
