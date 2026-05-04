@@ -1,0 +1,17 @@
+name: CI
+
+on : 
+    workflow_dispatch: 
+
+
+jobs : 
+    build :
+        runs-on : ubuntu-latest
+        steps:
+            - name : Hello-run
+              run : echo Hello , World
+
+            - name : Check Env Variables
+              env: 
+                    APP_ENV : DEMO
+              run : echo "ENV :- $APP_ENV "
