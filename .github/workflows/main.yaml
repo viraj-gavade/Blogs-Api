@@ -13,3 +13,20 @@ jobs :
         steps:
             - name : Hello-run
               run : echo Hello , World
+
+            - name: Create the a file 
+              run: |
+                echo creating file 
+                hello from the cicd file < demo.txt
+                echo File created successfully!
+            
+            - name : Uploading the artifacts 
+              uses: actions/upload-artifact@v7
+              with :
+                name: Demo artifacts
+                path: .
+
+            - name : End Process 
+              run : echo Process Completed
+            
+            
