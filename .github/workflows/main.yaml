@@ -17,7 +17,7 @@ jobs :
             - name: Create the a file 
               run: |
                 echo creating file 
-                "hello from the cicd file" > demo.txt
+                echo "hello from the cicd file" > demo.txt
                 echo File created successfully!
             
             - name : Uploading the artifacts 
