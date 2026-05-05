@@ -4,6 +4,7 @@ on :
     workflow_dispatch: 
 
 
+
 jobs : 
     build :
         runs-on : ubuntu-latest
@@ -14,4 +15,4 @@ jobs :
             - name : Check Env Variables
               env: 
                     APP_ENV : DEMO
-              run : echo "ENV :- $APP_ENV "
+              run : echo "ENV :- $APP_ENV  , Secret :- ${{ secrets.MY_SECRET }}"
